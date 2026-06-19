@@ -1,0 +1,8 @@
+/home/julius/STM32CubeIDE/workspace_2.0.0/RobotV2/CMSIS/core_cm4.h:1684:22:__NVIC_EnableIRQ	2
+/home/julius/STM32CubeIDE/workspace_2.0.0/RobotV2/CMSIS/core_cm4.h:1775:22:__NVIC_ClearPendingIRQ	2
+/home/julius/STM32CubeIDE/workspace_2.0.0/RobotV2/CMSIS/core_cm4.h:1814:22:__NVIC_SetPriority	2
+../Src/usart.c:20:6:init_usart2	1
+../Src/usart.c:61:6:USART2_IRQHandler	3
+../Src/usart.c:72:5:__io_getchar	2
+../Src/usart.c:77:20:UART_Transmit	2
+../Src/usart.c:82:5:__io_putchar	2

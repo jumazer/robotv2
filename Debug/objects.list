@@ -1,0 +1,8 @@
+"./Src/board.o"
+"./Src/cbfifo.o"
+"./Src/main.o"
+"./Src/syscalls.o"
+"./Src/sysmem.o"
+"./Src/systick_timer.o"
+"./Src/usart.o"
+"./Startup/startup_stm32f411retx.o"
