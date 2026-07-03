@@ -8,6 +8,8 @@ C_SRCS += \
 ../Src/board.c \
 ../Src/cbfifo.c \
 ../Src/main.c \
+../Src/motor_control.c \
+../Src/pwm.c \
 ../Src/syscalls.c \
 ../Src/sysmem.c \
 ../Src/systick_timer.c \
@@ -17,6 +19,8 @@ OBJS += \
 ./Src/board.o \
 ./Src/cbfifo.o \
 ./Src/main.o \
+./Src/motor_control.o \
+./Src/pwm.o \
 ./Src/syscalls.o \
 ./Src/sysmem.o \
 ./Src/systick_timer.o \
@@ -26,6 +30,8 @@ C_DEPS += \
 ./Src/board.d \
 ./Src/cbfifo.d \
 ./Src/main.d \
+./Src/motor_control.d \
+./Src/pwm.d \
 ./Src/syscalls.d \
 ./Src/sysmem.d \
 ./Src/systick_timer.d \
@@ -39,7 +45,7 @@ Src/%.o Src/%.su Src/%.cyclo: ../Src/%.c Src/subdir.mk
 clean: clean-Src
 
 clean-Src:
-	-$(RM) ./Src/board.cyclo ./Src/board.d ./Src/board.o ./Src/board.su ./Src/cbfifo.cyclo ./Src/cbfifo.d ./Src/cbfifo.o ./Src/cbfifo.su ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su ./Src/systick_timer.cyclo ./Src/systick_timer.d ./Src/systick_timer.o ./Src/systick_timer.su ./Src/usart.cyclo ./Src/usart.d ./Src/usart.o ./Src/usart.su
+	-$(RM) ./Src/board.cyclo ./Src/board.d ./Src/board.o ./Src/board.su ./Src/cbfifo.cyclo ./Src/cbfifo.d ./Src/cbfifo.o ./Src/cbfifo.su ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/motor_control.cyclo ./Src/motor_control.d ./Src/motor_control.o ./Src/motor_control.su ./Src/pwm.cyclo ./Src/pwm.d ./Src/pwm.o ./Src/pwm.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su ./Src/systick_timer.cyclo ./Src/systick_timer.d ./Src/systick_timer.o ./Src/systick_timer.su ./Src/usart.cyclo ./Src/usart.d ./Src/usart.o ./Src/usart.su
 
 .PHONY: clean-Src
 

@@ -17,6 +17,9 @@
 
 static cbfifo debug_rx; // cbfifo using for printingama
 
+/*
+ * This function is used to initialize usart2 which is used for printing
+ */
 void init_usart2(void) {
 	 cb_init(&debug_rx);
 
@@ -69,14 +72,14 @@ void USART2_IRQHandler(void) {
 	}
 }
 
-int __io_getchar(void) {
-	while(!cb_empty(&debug_rx)) { }
-	return (unsigned char) cb_dequeue(&debug_rx);
-}
-
 static inline void UART_Transmit(char c) {
 	while(!(USART2->SR & USART_SR_TXE)) { }
 	USART2->DR = (uint8_t) c;
+}
+
+int __io_getchar(void) {
+	while(!cb_empty(&debug_rx)) { }
+	return (unsigned char) cb_dequeue(&debug_rx);
 }
 
 int __io_putchar(int c) {

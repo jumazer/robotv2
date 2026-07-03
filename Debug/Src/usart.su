@@ -1,8 +1,8 @@
 /home/julius/STM32CubeIDE/workspace_2.0.0/RobotV2/CMSIS/core_cm4.h:1684:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
 /home/julius/STM32CubeIDE/workspace_2.0.0/RobotV2/CMSIS/core_cm4.h:1775:22:__NVIC_ClearPendingIRQ	16	static
 /home/julius/STM32CubeIDE/workspace_2.0.0/RobotV2/CMSIS/core_cm4.h:1814:22:__NVIC_SetPriority	16	static
-../Src/usart.c:20:6:init_usart2	8	static
-../Src/usart.c:61:6:USART2_IRQHandler	16	static
-../Src/usart.c:72:5:__io_getchar	8	static
-../Src/usart.c:77:20:UART_Transmit	16	static
-../Src/usart.c:82:5:__io_putchar	16	static
+../Src/usart.c:23:6:init_usart2	8	static
+../Src/usart.c:64:6:USART2_IRQHandler	16	static
+../Src/usart.c:75:20:UART_Transmit	16	static
+../Src/usart.c:80:5:__io_getchar	8	static
+../Src/usart.c:85:5:__io_putchar	16	static

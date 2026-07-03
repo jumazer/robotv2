@@ -1,6 +1,8 @@
 "./Src/board.o"
 "./Src/cbfifo.o"
 "./Src/main.o"
+"./Src/motor_control.o"
+"./Src/pwm.o"
 "./Src/syscalls.o"
 "./Src/sysmem.o"
 "./Src/systick_timer.o"

@@ -26,9 +26,11 @@
 #include "utilities.h"
 #include "systick_timer.h"
 #include "debug.h"
+#include "usart.h"
+#include "pwm.h"
+#include "motor_control.h"
 
 
-#define ULED_TIME_TICKS	20
 
 //#if !defined(__SOFT_FP__) && defined(__ARM_FP)
 //  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -51,39 +53,55 @@
 //}
 
 
+//void print_clock_debug(void)
+//{
+//    uint32_t cfgr = RCC->CFGR;
+//
+//    uint32_t sws   = (cfgr >> 2)  & 0x3U;
+//    uint32_t hpre  = (cfgr >> 4)  & 0xFU;
+//    uint32_t ppre1 = (cfgr >> 10) & 0x7U;
+//
+//    DBG_PRINTF("RCC->CFGR = 0x%08lx\r\n", cfgr);
+//    DBG_PRINTF("SWS   = %lu\r\n", sws);
+//    DBG_PRINTF("HPRE  = %lu\r\n", hpre);
+//    DBG_PRINTF("PPRE1 = %lu\r\n", ppre1);
+//
+//    if ((sws == 0U) && (hpre == 0U) && (ppre1 == 0U)) {
+//        DBG_PRINTF("Clock looks like default HSI: SYSCLK=16MHz, HCLK=16MHz, PCLK1=16MHz\r\n");
+//        DBG_PRINTF("TIM3 clock should be 16MHz\r\n");
+//    } else {
+//        DBG_PRINTF("Clock is not the simple default 16MHz setup. Need to decode more.\r\n");
+//    }
+//}
+
 int main(void)
 {
-
-	init_board();
-	MODIFY_FIELD(GPIOA->MODER, GPIO_MODER_MODER5, ESF_GPIO_MODER_OUTPUT);
-
-	init_systick();
 	init_usart2();
-
-
 	DBG_PRINTF("Starting Program! \r\n");
+	init_board();
+	init_systick();
+	init_tim3_pwm();
+	init_motor_controls();
 
-//
-//
-//
-//	ticktime_t last_uled_time = now();
-//	bool uled_action = true;
-//
-//	while(1) {
-//		if(time_reached(now(), last_uled_time + ULED_TIME_TICKS)) {
-//			DBG_PRINTF("Time reached!\r\n");
-//
-//			// turn on board uled on and off
-//			if(uled_action)
-//				GPIOA->BSRR = GPIO_BSRR_BS_5;
-//			else
-//				GPIOA->BSRR = GPIO_BSRR_BR_5;
-//
-//			uled_action = !uled_action;
-//			last_uled_time = now();
-//
-//		}
-//	}
+	// disable motors
+	TIM3->CCR1 = 0;
+	TIM2->CCR3 = 0;
+
+
+	// BIN1 = 1, BIN2 = 0
+	GPIOB->BSRR = GPIO_BSRR_BS_6;
+	GPIOA->BSRR = GPIO_BSRR_BR_7;
+
+	// AIN1 = 1, AIN2 = 0
+	GPIOA->BSRR = GPIO_BSRR_BS_9;
+	GPIOA->BSRR = GPIO_BSRR_BR_8;
+
+	// Set PWMB to speed 50
+	TIM3->CCR1 = 50;
+
+	// Set PWMA to speed 50
+	TIM2->CCR3 = 50;
+
 
 	while(1) { }
 
