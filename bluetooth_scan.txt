@@ -1,0 +1,2 @@
+SetDiscoveryFilter success
+Discovery started

@@ -16,9 +16,10 @@
  ******************************************************************************
  */
 
-#include <stdio.h>
+#include <command_processor.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "board.h"
 #include "stm32f411xe.h"
@@ -29,7 +30,8 @@
 #include "usart.h"
 #include "pwm.h"
 #include "motor_control.h"
-
+#include "cbfifo.h"
+#include "command_processor.h"
 
 
 //#if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -74,35 +76,57 @@
 //    }
 //}
 
+static cbfifo *bluetooth_cbfifo;
+static cbfifo *debug_cbfifo;
+
 int main(void)
 {
-	init_usart2();
-	DBG_PRINTF("Starting Program! \r\n");
+	init_usart2(); // initialize usart for printing first
 	init_board();
 	init_systick();
 	init_tim3_pwm();
 	init_motor_controls();
-
-	// disable motors
-	TIM3->CCR1 = 0;
-	TIM2->CCR3 = 0;
+	init_usart6();
 
 
-	// BIN1 = 1, BIN2 = 0
-	GPIOB->BSRR = GPIO_BSRR_BS_6;
-	GPIOA->BSRR = GPIO_BSRR_BR_7;
+	DBG_PRINTF("=============================== \r\n");
+	DBG_PRINTF("Starting Program! \r\n");
 
-	// AIN1 = 1, AIN2 = 0
-	GPIOA->BSRR = GPIO_BSRR_BS_9;
-	GPIOA->BSRR = GPIO_BSRR_BR_8;
+//	// disable motors
+//	TIM3->CCR1 = 0;
+//	TIM2->CCR3 = 0;
+//
+//
+//	// BIN1 = 1, BIN2 = 0
+//	GPIOB->BSRR = GPIO_BSRR_BS_6;
+//	GPIOA->BSRR = GPIO_BSRR_BR_7;
+//
+//	// AIN1 = 1, AIN2 = 0
+//	GPIOA->BSRR = GPIO_BSRR_BS_9;
+//	GPIOA->BSRR = GPIO_BSRR_BR_8;
+//
+//	// Set PWMB to speed 50
+//	TIM3->CCR1 = 50;
+//
+//	// Set PWMA to speed 50
+//	TIM2->CCR3 = 50;
 
-	// Set PWMB to speed 50
-	TIM3->CCR1 = 50;
-
-	// Set PWMA to speed 50
-	TIM2->CCR3 = 50;
+	bluetooth_cbfifo = get_bluetooth_cbfifo();
+	debug_cbfifo = get_debug_cbfifo();
 
 
-	while(1) { }
+	char command[QUEUE_SIZE];
+	uint8_t command_index = 0;
+	bool command_built = false;
+	while(true) {
+		command_built = build_command(command, &command_index, bluetooth_cbfifo);
+		if(command_built) {
+			// perform command
+			DBG_PRINTF("Received command: %s \r", command);
+			memset(command, 0, QUEUE_SIZE);
+			command_index = 0;
+			command_built = false;
+		}
+	}
 
 }
