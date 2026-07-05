@@ -92,18 +92,8 @@ int main(void)
 	DBG_PRINTF("=============================== \r\n");
 	DBG_PRINTF("Starting Program! \r\n");
 
-//	// disable motors
-//	TIM3->CCR1 = 0;
-//	TIM2->CCR3 = 0;
 //
 //
-//	// BIN1 = 1, BIN2 = 0
-//	GPIOB->BSRR = GPIO_BSRR_BS_6;
-//	GPIOA->BSRR = GPIO_BSRR_BR_7;
-//
-//	// AIN1 = 1, AIN2 = 0
-//	GPIOA->BSRR = GPIO_BSRR_BS_9;
-//	GPIOA->BSRR = GPIO_BSRR_BR_8;
 //
 //	// Set PWMB to speed 50
 //	TIM3->CCR1 = 50;
@@ -122,7 +112,7 @@ int main(void)
 		command_built = build_command(command, &command_index, bluetooth_cbfifo);
 		if(command_built) {
 			// perform command
-			DBG_PRINTF("Received command: %s \r", command);
+			run_command(command);
 			memset(command, 0, QUEUE_SIZE);
 			command_index = 0;
 			command_built = false;

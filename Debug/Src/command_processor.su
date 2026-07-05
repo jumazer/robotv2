@@ -1,1 +1,6 @@
-../Src/command_processor.c:12:6:build_command	32	static
+../Src/command_processor.c:22:6:build_command	32	static
+../Src/command_processor.c:36:6:print_bytes	24	static
+../Src/command_processor.c:45:6:forward	4	static
+../Src/command_processor.c:58:6:backward	4	static
+../Src/command_processor.c:71:6:stop	4	static
+../Src/command_processor.c:84:6:run_command	32	static
