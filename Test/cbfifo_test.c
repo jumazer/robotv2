@@ -22,7 +22,6 @@ void empty_queue(void) {
 	}
 }
 
-
 void test_init(void) {
 	cb_init(&test_cbfifo);
 	assert(cb_empty(&test_cbfifo) == true);

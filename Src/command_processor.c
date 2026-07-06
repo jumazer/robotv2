@@ -8,10 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "stm32f411xe.h"
 #include "command_processor.h"
 #include "cbfifo.h"
 #include "debug.h"
+#include "robot_actions.h"
 
 static command_t command_table[] = {
 		{"w", forward},
@@ -42,56 +42,39 @@ void print_bytes(const char *s)
     DBG_PRINTF("[end] 0x00\r\n");
 }
 
-void forward(void) {
-	// BIN1 = 1, BIN2 = 0
-	GPIOB->BSRR = GPIO_BSRR_BS_6;
-	GPIOA->BSRR = GPIO_BSRR_BR_7;
+command_status_t run_command(char* command, uint8_t speed) {
 
-	// AIN1 = 1, AIN2 = 0
-	GPIOA->BSRR = GPIO_BSRR_BS_9;
-	GPIOA->BSRR = GPIO_BSRR_BR_8;
+	if(speed > 100) {
+		return CMD_STATUS_BAD_ARGUMENT;
+	}
 
-	TIM3->CCR1 = MOTOR_CONST;
-	TIM2->CCR3 = MOTOR_CONST;
-}
+	if(strlen(command) == 0) {
+		return CMD_STATUS_EMPTY;
+	}
 
-void backward(void) {
-	// BIN1 = 0, BIN2 = 1
-	GPIOB->BSRR = GPIO_BSRR_BR_6;
-	GPIOA->BSRR = GPIO_BSRR_BS_7;
-
-	// AIN1 = 0, AIN2 = 1
-	GPIOA->BSRR = GPIO_BSRR_BR_9;
-	GPIOA->BSRR = GPIO_BSRR_BS_8;
-
-	TIM3->CCR1 = MOTOR_CONST;
-	TIM2->CCR3 = MOTOR_CONST;
-}
-
-void stop(void) {
-	TIM3->CCR1 = 0;
-	TIM2->CCR3 = 0;
-
-	// BIN1 = 0, BIN2 = 0
-	GPIOB->BSRR = GPIO_BSRR_BR_6;
-	GPIOA->BSRR = GPIO_BSRR_BR_7;
-
-	// AIN1 = 0, AIN2 = 0
-	GPIOA->BSRR = GPIO_BSRR_BR_9;
-	GPIOA->BSRR = GPIO_BSRR_BR_8;
-}
-
-void run_command(char* command) {
+	bool command_found = false;
 	uint16_t cmd_tbl_size = sizeof(command_table) / sizeof(command_table[0]);
 	for(uint16_t i = 0; i < cmd_tbl_size; i++) {
 		char* cmd_tmp = command_table[i].command;
-		uint8_t cmd_len = strlen(cmd_tmp);
+		uint8_t command_length = strlen(command);
+		uint8_t cmd_tmp_length = strlen(cmd_tmp);
 
-		if(strncmp(cmd_tmp, command, cmd_len) == 0) {
+		if(command_length != cmd_tmp_length)
+			continue;
+
+
+		if(strncmp(cmd_tmp, command, command_length) == 0) {
+			command_found = true;
 			DBG_PRINTF("In IF STMT \r\n");
 			command_func_t run_command = command_table[i].function;
-			run_command();
+			run_command(speed);
 			break;
 		}
+	}
+
+	if(command_found) {
+		return CMD_STATUS_OK;
+	} else {
+		return CMD_STATUS_UNKNOWN;
 	}
 }

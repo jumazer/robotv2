@@ -35,3 +35,5 @@ Thumbs.db
 # Your custom ignores
 tree.txt
 screenlog.0
+cbfifo_test
+command_test

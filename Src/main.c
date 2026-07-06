@@ -111,8 +111,20 @@ int main(void)
 	while(true) {
 		command_built = build_command(command, &command_index, bluetooth_cbfifo);
 		if(command_built) {
+			// parse speed
+			uint8_t speed = DEFAULT_SPEED;
 			// perform command
-			run_command(command);
+			command_status_t status = run_command(command, speed);
+
+			// handle status
+			if(status == CMD_STATUS_UNKNOWN) {
+				DBG_PRINTF("Bad command: %s. Please enter in another", command);
+			} else if(status == CMD_STATUS_BAD_ARGUMENT) {
+				DBG_PRINTF("Bad speed: %u provided to command: %s.", speed, command);
+			} else if(status == CMD_STATUS_EMPTY) {
+				DBG_PRINTF("Empty command provided please enter in another");
+			}
+
 			memset(command, 0, QUEUE_SIZE);
 			command_index = 0;
 			command_built = false;
