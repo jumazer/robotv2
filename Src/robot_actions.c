@@ -34,6 +34,16 @@ void backward(uint8_t speed) {
 	TIM2->CCR3 = speed;
 }
 
+void left(uint8_t speed) {
+	TIM3->CCR1 = (speed / 2); // make left motor half the speed
+	TIM2->CCR3 = speed;
+}
+
+void right(uint8_t speed) {
+	TIM3->CCR1 = speed;
+	TIM2->CCR3 = (speed / 2); // make right motor half the speed
+}
+
 void stop(uint8_t speed) {
 	TIM3->CCR1 = 0;
 	TIM2->CCR3 = 0;

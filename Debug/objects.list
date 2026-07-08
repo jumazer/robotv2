@@ -9,4 +9,5 @@
 "./Src/sysmem.o"
 "./Src/systick_timer.o"
 "./Src/usart.o"
+"./Src/utilities.o"
 "./Startup/startup_stm32f411retx.o"

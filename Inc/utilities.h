@@ -20,4 +20,6 @@
 
 #define UNUSED(X)  (void)X
 
+void to_lower(char* str);
+
 #endif /* UTILITIES_H_ */

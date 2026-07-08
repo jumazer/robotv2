@@ -32,6 +32,7 @@
 #include "motor_control.h"
 #include "cbfifo.h"
 #include "command_processor.h"
+#include "utilities.h"
 
 
 //#if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -108,24 +109,27 @@ int main(void)
 	char command[QUEUE_SIZE];
 	uint8_t command_index = 0;
 	bool command_built = false;
+	command_state command_state = { };
 	while(true) {
 		command_built = build_command(command, &command_index, bluetooth_cbfifo);
-		if(command_built) {
-			// parse speed
-			uint8_t speed = DEFAULT_SPEED;
-			// perform command
-			command_status_t status = run_command(command, speed);
 
-			// handle status
-			if(status == CMD_STATUS_UNKNOWN) {
-				DBG_PRINTF("Bad command: %s. Please enter in another", command);
-			} else if(status == CMD_STATUS_BAD_ARGUMENT) {
-				DBG_PRINTF("Bad speed: %u provided to command: %s.", speed, command);
-			} else if(status == CMD_STATUS_EMPTY) {
-				DBG_PRINTF("Empty command provided please enter in another");
+		// check errors here
+
+		if(command_built) {
+			to_lower(command);
+			DBG_PRINTF("Received command is: %s \r\n", command);
+			parse_command(command, &command_state);
+
+			if(command_state.command_type == SIMPLE) {
+				run_simple_command(&command_state);
+			} else if(command_state.command_type == JOYSTICK) {
+				run_joystick_command(&command_state);
+			} else {
+				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
 			}
 
 			memset(command, 0, QUEUE_SIZE);
+			memset(&command_state, 0, sizeof(command_state));
 			command_index = 0;
 			command_built = false;
 		}

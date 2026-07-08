@@ -1,3 +1,6 @@
-../Src/command_processor.c:22:6:build_command	4
-../Src/command_processor.c:36:6:print_bytes	2
-../Src/command_processor.c:45:18:run_command	7
+../Src/command_processor.c:28:17:get_cmd_tbl_size	1
+../Src/command_processor.c:32:6:build_command	4
+../Src/command_processor.c:46:5:is_simple_command	4
+../Src/command_processor.c:64:6:run_simple_command	1
+../Src/command_processor.c:69:6:run_joystick_command	3
+../Src/command_processor.c:77:6:parse_command	7

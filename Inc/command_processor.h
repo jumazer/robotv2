@@ -8,7 +8,6 @@
 #ifndef COMMAND_PROCESSOR_H_
 #define COMMAND_PROCESSOR_H_
 
-#define DEFAULT_SPEED 30
 
 #include <stdbool.h>
 
@@ -22,14 +21,30 @@ typedef struct {
 } command_t;
 
 typedef enum {
-	CMD_STATUS_OK,
-	CMD_STATUS_UNKNOWN,
-	CMD_STATUS_EMPTY,
-	CMD_STATUS_BAD_ARGUMENT
-} command_status_t;
+	SIMPLE,
+	JOYSTICK,
+	BAD
+} command_type;
+
+typedef struct {
+	command_type command_type;
+
+	char forward_backward_cmd;
+	char left_right_cmd;
+	uint8_t forward_backward_speed;
+	uint8_t left_right_speed;
+
+	uint8_t simple_cmd_index;
+} command_state;
 
 bool build_command(char* command, uint8_t* command_index, cbfifo* bluetooth_cbfifo);
 
-command_status_t run_command(char* command, uint8_t speed);
+int is_simple_command(char* command);
+
+void run_simple_command(command_state* command_state);
+
+void run_joystick_command(command_state* command_state);
+
+void parse_command(char* command, command_state* command_state);
 
 #endif /* COMMAND_PROCESSOR_H_ */

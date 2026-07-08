@@ -15,7 +15,8 @@ C_SRCS += \
 ../Src/syscalls.c \
 ../Src/sysmem.c \
 ../Src/systick_timer.c \
-../Src/usart.c 
+../Src/usart.c \
+../Src/utilities.c 
 
 OBJS += \
 ./Src/board.o \
@@ -28,7 +29,8 @@ OBJS += \
 ./Src/syscalls.o \
 ./Src/sysmem.o \
 ./Src/systick_timer.o \
-./Src/usart.o 
+./Src/usart.o \
+./Src/utilities.o 
 
 C_DEPS += \
 ./Src/board.d \
@@ -41,7 +43,8 @@ C_DEPS += \
 ./Src/syscalls.d \
 ./Src/sysmem.d \
 ./Src/systick_timer.d \
-./Src/usart.d 
+./Src/usart.d \
+./Src/utilities.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -51,7 +54,7 @@ Src/%.o Src/%.su Src/%.cyclo: ../Src/%.c Src/subdir.mk
 clean: clean-Src
 
 clean-Src:
-	-$(RM) ./Src/board.cyclo ./Src/board.d ./Src/board.o ./Src/board.su ./Src/cbfifo.cyclo ./Src/cbfifo.d ./Src/cbfifo.o ./Src/cbfifo.su ./Src/command_processor.cyclo ./Src/command_processor.d ./Src/command_processor.o ./Src/command_processor.su ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/motor_control.cyclo ./Src/motor_control.d ./Src/motor_control.o ./Src/motor_control.su ./Src/pwm.cyclo ./Src/pwm.d ./Src/pwm.o ./Src/pwm.su ./Src/robot_actions.cyclo ./Src/robot_actions.d ./Src/robot_actions.o ./Src/robot_actions.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su ./Src/systick_timer.cyclo ./Src/systick_timer.d ./Src/systick_timer.o ./Src/systick_timer.su ./Src/usart.cyclo ./Src/usart.d ./Src/usart.o ./Src/usart.su
+	-$(RM) ./Src/board.cyclo ./Src/board.d ./Src/board.o ./Src/board.su ./Src/cbfifo.cyclo ./Src/cbfifo.d ./Src/cbfifo.o ./Src/cbfifo.su ./Src/command_processor.cyclo ./Src/command_processor.d ./Src/command_processor.o ./Src/command_processor.su ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/motor_control.cyclo ./Src/motor_control.d ./Src/motor_control.o ./Src/motor_control.su ./Src/pwm.cyclo ./Src/pwm.d ./Src/pwm.o ./Src/pwm.su ./Src/robot_actions.cyclo ./Src/robot_actions.d ./Src/robot_actions.o ./Src/robot_actions.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su ./Src/systick_timer.cyclo ./Src/systick_timer.d ./Src/systick_timer.o ./Src/systick_timer.su ./Src/usart.cyclo ./Src/usart.d ./Src/usart.o ./Src/usart.su ./Src/utilities.cyclo ./Src/utilities.d ./Src/utilities.o ./Src/utilities.su
 
 .PHONY: clean-Src
 
