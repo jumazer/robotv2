@@ -13,6 +13,9 @@
 
 #include "cbfifo.h"
 
+#define COMMAND_LENGTH 	16
+#define MAX_SPEED		70
+
 typedef void (*command_func_t)(uint8_t speed);
 
 typedef struct {

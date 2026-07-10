@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "stm32f411xe.h"
 #include "command_processor.h"
 #include "cbfifo.h"
 #include "debug.h"
@@ -32,13 +33,23 @@ static uint16_t get_cmd_tbl_size(void) {
 bool build_command(char* command, uint8_t* command_index, cbfifo* bluetooth_cbfifo) {
 	if(!cb_empty(bluetooth_cbfifo)) {
 		char c = cb_dequeue(bluetooth_cbfifo);
-		if(c == '\n' || c == '\r') {
+
+		if(c == '\n') {
+			command[*command_index] = '\0';
 			return true;
-		} else {
-			command[*command_index] = c;
-			(*command_index)++;
-			return false;
 		}
+
+		if(*command_index >= COMMAND_LENGTH - 1) {
+		    *command_index = 0;
+		    memset(command, 0, COMMAND_LENGTH);
+		    return false;
+		}
+
+
+		command[*command_index] = c;
+		(*command_index)++;
+		return false;
+
 	}
 	return false;
 }
@@ -67,11 +78,57 @@ void run_simple_command(command_state* command_state) {
 }
 
 void run_joystick_command(command_state* command_state) {
+	// default to have the motors 'move forward'
+	// BIN1 = 1, BIN2 = 0
+	GPIOB->BSRR = GPIO_BSRR_BS_6;
+	GPIOA->BSRR = GPIO_BSRR_BR_7;
+
+	// AIN1 = 1, AIN2 = 0
+	GPIOA->BSRR = GPIO_BSRR_BS_9;
+	GPIOA->BSRR = GPIO_BSRR_BR_8;
+
+
+	// set forward and backward speed
 	if(command_state->forward_backward_cmd == 'f') {
 		forward(command_state->forward_backward_speed);
 	} else if(command_state->forward_backward_cmd == 'b') {
 		backward(command_state->forward_backward_speed);
 	}
+
+	if(command_state->left_right_speed > 0) {
+		if(command_state->left_right_cmd == 'l') {
+			int tmp = TIM3->CCR1 - command_state->left_right_speed;
+			if(tmp <= 0) {
+				TIM3->CCR1 = 0;
+			} else {
+				TIM3->CCR1 -= command_state->left_right_speed;
+			}
+
+			tmp = TIM2->CCR3 + command_state->left_right_speed;
+			if(tmp > 70) {
+				TIM2->CCR3 = 70;
+			} else {
+				TIM2->CCR3 += command_state->left_right_speed; // add turn speed to right motor
+			}
+		} else if(command_state->left_right_cmd == 'r') {
+			int tmp = TIM2->CCR3 - command_state->left_right_speed;
+			if(tmp <= 0) {
+				TIM2->CCR3 = 0;
+			} else {
+				TIM2->CCR3 -= command_state->left_right_speed;
+			}
+
+			tmp = TIM3->CCR1 + command_state->left_right_speed;
+			if(tmp > 70) {
+				TIM3->CCR1 = 70;
+			} else {
+				TIM3->CCR1 += command_state->left_right_speed; // add turn speed to left motor
+			}
+		}
+	}
+
+//	DBG_PRINTF("TIM3 CCR1 is: %lu \r\n", TIM3->CCR1);
+//	DBG_PRINTF("TIM2 CCR3 is: %lu \r\n", TIM2->CCR3);
 }
 
 void parse_command(char* command, command_state* command_state) {

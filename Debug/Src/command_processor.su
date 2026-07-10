@@ -1,6 +1,6 @@
-../Src/command_processor.c:28:17:get_cmd_tbl_size	4	static
-../Src/command_processor.c:32:6:build_command	32	static
-../Src/command_processor.c:46:5:is_simple_command	32	static
-../Src/command_processor.c:64:6:run_simple_command	24	static
-../Src/command_processor.c:69:6:run_joystick_command	16	static
-../Src/command_processor.c:77:6:parse_command	32	static
+../Src/command_processor.c:29:17:get_cmd_tbl_size	4	static
+../Src/command_processor.c:33:6:build_command	32	static
+../Src/command_processor.c:57:5:is_simple_command	32	static
+../Src/command_processor.c:75:6:run_simple_command	24	static
+../Src/command_processor.c:80:6:run_joystick_command	24	static
+../Src/command_processor.c:134:6:parse_command	32	static

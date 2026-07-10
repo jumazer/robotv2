@@ -20,6 +20,11 @@
 
 #define UNUSED(X)  (void)X
 
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
+
 void to_lower(char* str);
 
 #endif /* UTILITIES_H_ */

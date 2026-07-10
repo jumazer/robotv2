@@ -106,7 +106,7 @@ int main(void)
 	debug_cbfifo = get_debug_cbfifo();
 
 
-	char command[QUEUE_SIZE];
+	char command[COMMAND_LENGTH];
 	uint8_t command_index = 0;
 	bool command_built = false;
 	command_state command_state = { };
@@ -117,7 +117,7 @@ int main(void)
 
 		if(command_built) {
 			to_lower(command);
-			DBG_PRINTF("Received command is: %s \r\n", command);
+			DBG_PRINTF("CMD: %s \r\n", command);
 			parse_command(command, &command_state);
 
 			if(command_state.command_type == SIMPLE) {
@@ -128,7 +128,7 @@ int main(void)
 				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
 			}
 
-			memset(command, 0, QUEUE_SIZE);
+			memset(command, 0, 16);
 			memset(&command_state, 0, sizeof(command_state));
 			command_index = 0;
 			command_built = false;
