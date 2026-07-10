@@ -17,6 +17,7 @@
 
 #define JOYSTICK_CMD_LEN 	6
 #define DEFAULT_SPEED		40
+#define MAX_SPEED			70
 
 static command_t command_table[] = {
 		{"w", forward},

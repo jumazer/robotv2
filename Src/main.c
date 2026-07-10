@@ -16,7 +16,6 @@
  ******************************************************************************
  */
 
-#include <command_processor.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -128,7 +127,7 @@ int main(void)
 				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
 			}
 
-			memset(command, 0, 16);
+			memset(command, 0, COMMAND_LENGTH);
 			memset(&command_state, 0, sizeof(command_state));
 			command_index = 0;
 			command_built = false;

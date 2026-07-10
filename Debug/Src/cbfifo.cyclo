@@ -1,6 +1,0 @@
-../Src/cbfifo.c:12:6:cb_empty	2
-../Src/cbfifo.c:19:6:cb_full	2
-../Src/cbfifo.c:26:5:cb_length	1
-../Src/cbfifo.c:30:6:cb_init	1
-../Src/cbfifo.c:37:5:cb_enqueue	2
-../Src/cbfifo.c:49:15:cb_dequeue	2
