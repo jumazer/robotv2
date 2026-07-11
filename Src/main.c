@@ -105,31 +105,25 @@ int main(void)
 	debug_cbfifo = get_debug_cbfifo();
 
 
-	char command[COMMAND_LENGTH];
-	uint8_t command_index = 0;
 	bool command_built = false;
 	command_state command_state = { };
 	while(true) {
-		command_built = build_command(command, &command_index, bluetooth_cbfifo);
+		command_built = build_command(&command_state, bluetooth_cbfifo);
 
 		// check errors here
 
 		if(command_built) {
+			char* command = command_state.command;
 			to_lower(command);
 			DBG_PRINTF("CMD: %s \r\n", command);
-			parse_command(command, &command_state);
+			parse_command_details(&command_state);
 
-			if(command_state.command_type == SIMPLE) {
-				run_simple_command(&command_state);
-			} else if(command_state.command_type == JOYSTICK) {
-				run_joystick_command(&command_state);
-			} else {
+			if(command_state.command_type == BAD) {
 				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
 			}
 
-			memset(command, 0, COMMAND_LENGTH);
+			set_motors(&command_state);
 			memset(&command_state, 0, sizeof(command_state));
-			command_index = 0;
 			command_built = false;
 		}
 	}

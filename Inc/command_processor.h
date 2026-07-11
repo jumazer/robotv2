@@ -15,13 +15,6 @@
 
 #define COMMAND_LENGTH		16
 
-typedef void (*command_func_t)(uint8_t speed);
-
-typedef struct {
-	char* command;
-	command_func_t function;
-} command_t;
-
 typedef enum {
 	SIMPLE,
 	JOYSTICK,
@@ -30,23 +23,30 @@ typedef enum {
 
 typedef struct {
 	command_type command_type;
+	char command[COMMAND_LENGTH];
+	uint8_t command_index;
 
-	char forward_backward_cmd;
-	char left_right_cmd;
-	uint8_t forward_backward_speed;
-	uint8_t left_right_speed;
-
-	uint8_t simple_cmd_index;
+	int throttle_speed;
+	int turn_speed;
 } command_state;
 
-bool build_command(char* command, uint8_t* command_index, cbfifo* bluetooth_cbfifo);
+typedef void (*command_func_t)(command_state* command_state);
+
+typedef struct {
+	char* command;
+	command_func_t speed_function;
+	command_func_t motor_function;
+} command_t;
+
+
+bool build_command(command_state* command_state, cbfifo* bluetooth_cbfifo);
 
 int is_simple_command(char* command);
 
-void run_simple_command(command_state* command_state);
+void set_motors(command_state* command_state);
 
-void run_joystick_command(command_state* command_state);
+// void run_joystick_command(command_state* command_state);
 
-void parse_command(char* command, command_state* command_state);
+void parse_command_details(command_state* command_state);
 
 #endif /* COMMAND_PROCESSOR_H_ */

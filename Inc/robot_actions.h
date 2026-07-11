@@ -12,17 +12,15 @@
 #include "command_processor.h"
 
 // simple commands
-void forward(uint8_t speed);
+void set_motors_forward(command_state* command_state);
 
-void backward(uint8_t speed);
+void set_motors_backward(command_state* command_state);
 
-void left(uint8_t speed);
+void set_motors_left(command_state* command_state);
 
-void right(uint8_t right);
+void set_motors_right(command_state* command_state);
 
-void stop(uint8_t speed);
+void set_motors_stop(command_state* command_state);
 
-// joystick commands
-void forward_joystick(command_state* command_state);
 
 #endif /* ROBOT_ACTIONS_H_ */
