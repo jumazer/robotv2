@@ -18,7 +18,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 
 #include "board.h"
 #include "stm32f411xe.h"
@@ -32,6 +31,7 @@
 #include "cbfifo.h"
 #include "command_processor.h"
 #include "utilities.h"
+#include "motor_control.h"
 
 
 //#if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -79,6 +79,13 @@
 static cbfifo *bluetooth_cbfifo;
 static cbfifo *debug_cbfifo;
 
+
+static void clear_state(motor_command* motor_cmd, command_state* cmd_state, bool* command_built) {
+	*motor_cmd = (motor_command){0};
+	*cmd_state = (command_state){0};
+	*command_built = false;
+}
+
 int main(void)
 {
 	init_usart2(); // initialize usart for printing first
@@ -92,20 +99,12 @@ int main(void)
 	DBG_PRINTF("=============================== \r\n");
 	DBG_PRINTF("Starting Program! \r\n");
 
-//
-//
-//
-//	// Set PWMB to speed 50
-//	TIM3->CCR1 = 50;
-//
-//	// Set PWMA to speed 50
-//	TIM2->CCR3 = 50;
-
 	bluetooth_cbfifo = get_bluetooth_cbfifo();
 	debug_cbfifo = get_debug_cbfifo();
 
 
 	bool command_built = false;
+	motor_command motor_command = { };
 	command_state command_state = { };
 	while(true) {
 		command_built = build_command(&command_state, bluetooth_cbfifo);
@@ -116,15 +115,17 @@ int main(void)
 			char* command = command_state.command;
 			to_lower(command);
 			DBG_PRINTF("CMD: %s \r\n", command);
-			parse_command_details(&command_state);
+			// sets the motor speed as well as other attributes
+			parse_command(&command_state, &motor_command);
 
 			if(command_state.command_type == BAD) {
 				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
+				clear_state(&motor_command, &command_state, &command_built);
+				continue;
 			}
 
-			set_motors(&command_state);
-			memset(&command_state, 0, sizeof(command_state));
-			command_built = false;
+			set_motors(&motor_command);
+			clear_state(&motor_command, &command_state, &command_built);
 		}
 	}
 
