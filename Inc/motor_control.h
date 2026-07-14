@@ -18,4 +18,6 @@ void init_motor_controls(void);
 
 void set_motors(motor_command* motor_command);
 
+void stop_motors(void);
+
 #endif /* MOTOR_CONTROL_H_ */

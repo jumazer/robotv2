@@ -18,12 +18,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "board.h"
 #include "stm32f411xe.h"
 #include "system_stm32f4xx.h"
 #include "utilities.h"
-#include "systick_timer.h"
 #include "debug.h"
 #include "usart.h"
 #include "pwm.h"
@@ -32,6 +32,12 @@
 #include "command_processor.h"
 #include "utilities.h"
 #include "motor_control.h"
+#include "timers.h"
+#include "echo_processor.h"
+
+#define PULSE_TICKS		2
+#define STOP_DISTANCE	30
+#define CLEAR_DISTANCE	35
 
 
 //#if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -54,8 +60,7 @@
 //    __ISB();
 //}
 
-
-//void print_clock_debug(void)
+//static void print_clock_debug(void)
 //{
 //    uint32_t cfgr = RCC->CFGR;
 //
@@ -76,6 +81,7 @@
 //    }
 //}
 
+
 static cbfifo *bluetooth_cbfifo;
 static cbfifo *debug_cbfifo;
 
@@ -94,7 +100,7 @@ int main(void)
 	init_tim3_pwm();
 	init_motor_controls();
 	init_usart6();
-
+	init_tim5();
 
 	DBG_PRINTF("=============================== \r\n");
 	DBG_PRINTF("Starting Program! \r\n");
@@ -102,14 +108,37 @@ int main(void)
 	bluetooth_cbfifo = get_bluetooth_cbfifo();
 	debug_cbfifo = get_debug_cbfifo();
 
-
 	bool command_built = false;
-	motor_command motor_command = { };
-	command_state command_state = { };
+	bool forward_blocked = false;
+	motor_command motor_command = {0};
+	command_state command_state = {0};
+	echo_state echo_result = {0};
+
+	ticktime_t last_echo_time = now();
 	while(true) {
 		command_built = build_command(&command_state, bluetooth_cbfifo);
 
-		// check errors here
+		// try echo every 100ms using systick timer
+		if(time_reached(now(), last_echo_time + PULSE_TICKS)) {
+			last_echo_time  = now();
+			run_echo(&echo_result);
+
+			if(echo_result.echo_received) {
+
+				DBG_PRINTF("echo disntace: %lu \r\n", echo_result.distance_cm);
+
+				if(!forward_blocked && echo_result.distance_cm <= STOP_DISTANCE) {
+					stop_motors();
+					echo_result = (echo_state){0};
+					clear_state(&motor_command, &command_state, &command_built);
+					forward_blocked = true;
+					continue;
+				} else if(forward_blocked && echo_result.distance_cm >= CLEAR_DISTANCE) {
+					forward_blocked = false;
+				}
+			}
+		}
+
 
 		if(command_built) {
 			char* command = command_state.command;
@@ -120,6 +149,11 @@ int main(void)
 
 			if(command_state.command_type == BAD) {
 				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
+				clear_state(&motor_command, &command_state, &command_built);
+				continue;
+			}
+
+			if(forward_blocked && motor_command.throttle_speed > 0) {
 				clear_state(&motor_command, &command_state, &command_built);
 				continue;
 			}
