@@ -12,15 +12,10 @@
 #include <stdbool.h>
 
 #include "cbfifo.h"
+#include "motor_control.h"
+
 
 #define COMMAND_LENGTH		16
-
-typedef void (*command_func_t)(uint8_t speed);
-
-typedef struct {
-	char* command;
-	command_func_t function;
-} command_t;
 
 typedef enum {
 	SIMPLE,
@@ -30,23 +25,21 @@ typedef enum {
 
 typedef struct {
 	command_type command_type;
-
-	char forward_backward_cmd;
-	char left_right_cmd;
-	uint8_t forward_backward_speed;
-	uint8_t left_right_speed;
-
-	uint8_t simple_cmd_index;
+	char command[COMMAND_LENGTH];
+	uint8_t command_index;
 } command_state;
 
-bool build_command(char* command, uint8_t* command_index, cbfifo* bluetooth_cbfifo);
+typedef void (*command_func_t)(command_state* command_state);
 
-int is_simple_command(char* command);
+typedef struct {
+	char* command;
+	command_func_t speed_function;
+	command_func_t motor_function;
+} command_t;
 
-void run_simple_command(command_state* command_state);
 
-void run_joystick_command(command_state* command_state);
+bool build_command(command_state* command_state, cbfifo* bluetooth_cbfifo);
 
-void parse_command(char* command, command_state* command_state);
+void parse_command(command_state* command_state, motor_command* motor_command);
 
 #endif /* COMMAND_PROCESSOR_H_ */

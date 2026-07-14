@@ -24,7 +24,6 @@
 #include "stm32f411xe.h"
 #include "system_stm32f4xx.h"
 #include "utilities.h"
-#include "systick_timer.h"
 #include "debug.h"
 #include "usart.h"
 #include "pwm.h"
@@ -32,6 +31,13 @@
 #include "cbfifo.h"
 #include "command_processor.h"
 #include "utilities.h"
+#include "motor_control.h"
+#include "timers.h"
+#include "echo_processor.h"
+
+#define PULSE_TICKS		2
+#define STOP_DISTANCE	30
+#define CLEAR_DISTANCE	35
 
 
 //#if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -54,8 +60,7 @@
 //    __ISB();
 //}
 
-
-//void print_clock_debug(void)
+//static void print_clock_debug(void)
 //{
 //    uint32_t cfgr = RCC->CFGR;
 //
@@ -76,8 +81,16 @@
 //    }
 //}
 
+
 static cbfifo *bluetooth_cbfifo;
 static cbfifo *debug_cbfifo;
+
+
+static void clear_state(motor_command* motor_cmd, command_state* cmd_state, bool* command_built) {
+	*motor_cmd = (motor_command){0};
+	*cmd_state = (command_state){0};
+	*command_built = false;
+}
 
 int main(void)
 {
@@ -87,50 +100,66 @@ int main(void)
 	init_tim3_pwm();
 	init_motor_controls();
 	init_usart6();
-
+	init_tim5();
 
 	DBG_PRINTF("=============================== \r\n");
 	DBG_PRINTF("Starting Program! \r\n");
 
-//
-//
-//
-//	// Set PWMB to speed 50
-//	TIM3->CCR1 = 50;
-//
-//	// Set PWMA to speed 50
-//	TIM2->CCR3 = 50;
-
 	bluetooth_cbfifo = get_bluetooth_cbfifo();
 	debug_cbfifo = get_debug_cbfifo();
 
-
-	char command[COMMAND_LENGTH];
-	uint8_t command_index = 0;
 	bool command_built = false;
-	command_state command_state = { };
-	while(true) {
-		command_built = build_command(command, &command_index, bluetooth_cbfifo);
+	bool forward_blocked = false;
+	motor_command motor_command = {0};
+	command_state command_state = {0};
+	echo_state echo_result = {0};
 
-		// check errors here
+	ticktime_t last_echo_time = now();
+	while(true) {
+		command_built = build_command(&command_state, bluetooth_cbfifo);
+
+		// try echo every 100ms using systick timer
+		if(time_reached(now(), last_echo_time + PULSE_TICKS)) {
+			last_echo_time  = now();
+			run_echo(&echo_result);
+
+			if(echo_result.echo_received) {
+
+				DBG_PRINTF("echo disntace: %lu \r\n", echo_result.distance_cm);
+
+				if(!forward_blocked && echo_result.distance_cm <= STOP_DISTANCE) {
+					stop_motors();
+					echo_result = (echo_state){0};
+					clear_state(&motor_command, &command_state, &command_built);
+					forward_blocked = true;
+					continue;
+				} else if(forward_blocked && echo_result.distance_cm >= CLEAR_DISTANCE) {
+					forward_blocked = false;
+				}
+			}
+		}
+
 
 		if(command_built) {
+			char* command = command_state.command;
 			to_lower(command);
 			DBG_PRINTF("CMD: %s \r\n", command);
-			parse_command(command, &command_state);
+			// sets the motor speed as well as other attributes
+			parse_command(&command_state, &motor_command);
 
-			if(command_state.command_type == SIMPLE) {
-				run_simple_command(&command_state);
-			} else if(command_state.command_type == JOYSTICK) {
-				run_joystick_command(&command_state);
-			} else {
+			if(command_state.command_type == BAD) {
 				DBG_PRINTF("Command entered is: %s, please try another \r\n", command);
+				clear_state(&motor_command, &command_state, &command_built);
+				continue;
 			}
 
-			memset(command, 0, COMMAND_LENGTH);
-			memset(&command_state, 0, sizeof(command_state));
-			command_index = 0;
-			command_built = false;
+			if(forward_blocked && motor_command.throttle_speed > 0) {
+				clear_state(&motor_command, &command_state, &command_built);
+				continue;
+			}
+
+			set_motors(&motor_command);
+			clear_state(&motor_command, &command_state, &command_built);
 		}
 	}
 
